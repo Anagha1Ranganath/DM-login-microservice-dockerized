@@ -1,0 +1,110 @@
+version: "2"
+
+services:
+#  mysql:
+#    image: mysql:5.7
+#    ports:
+#      - 3306:3306
+#    container_name: mysql
+#    environment:
+#      MYSQL_ROOT_PASSWORD: root
+#      MYSQL_DATABASE: mysqldocker
+#    volumes:
+#      - '/opt/datasql:/var/lib/mysql'
+#    network_mode: "host"
+#    hostname: localhost
+
+
+
+  mysql:
+    image: mysql:5.7
+    ports:
+      - 3306:3306
+    container_name: mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: LoginDatabase
+#    volumes:
+#      - '/opt/datasql:/var/lib/mysql'
+    network_mode: host
+
+
+  apigateway:
+    image: zuul-service
+    build: zuul-gatewayservice/
+    restart: always
+    network_mode: host
+    depends_on:
+    - eurekaserver
+    ports:
+    - 8092:8092
+    expose:
+    - 8092
+
+  eurekaserver:
+    image: eureka-servcie:latest
+    build: eureka-server/
+    restart: always
+    network_mode: host
+    ports:
+    - 9091:9091
+    expose:
+    - 9091
+
+  configserver:
+      image: config-servcie:latest
+      build: config-server/
+      restart: always
+      network_mode: host
+      ports:
+      - 8888:8888
+      expose:
+      - 8888
+
+
+
+  deliverymanager:
+    image: deliverymanager:latest
+    build: delivery-manager/
+    restart: always
+    network_mode: host
+    depends_on:
+      - mysql
+    ports:
+      - 8808:8808
+    expose:
+      - 8808
+
+#  login:
+#    image: login-service:latest
+#    build: login/
+#
+#    restart: always
+#    network_mode: host
+#    depends_on:
+#      - mysql
+#
+#    ports:
+#      - 8808:8808
+#    expose:
+#      - 8808
+
+
+
+
+  registrationservice:
+    image: registration-servcie:latest
+    build: registration-service/
+    restart: always
+    network_mode: host
+    ports:
+      - 8887:8887
+    expose:
+      - 8887
+
+  mongodb:
+    image: mongo:3.4-jessie
+    container_name: "RegistrationDB"
+    ports:
+      - 27017:27017
+
